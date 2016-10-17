@@ -1,5 +1,8 @@
-Angular Google GApi
+Angular Google GApi 
 =======================
+[![Travis](https://img.shields.io/travis/maximepvrt/angular-google-gapi.svg)](https://travis-ci.org/maximepvrt/angular-google-gapi)
+[![David](https://img.shields.io/david/maximepvrt/angular-google-gapi.svg)]()
+[![npm](https://img.shields.io/npm/v/angular-google-gapi.svg)](https://www.npmjs.com/package/angular-google-gapi) [![Bower](https://img.shields.io/bower/v/angular-google-gapi.svg)](http://bower.io/search/?q=angular-google-gapi)
 
 An AngularJS module for use all Google Apis and your Google Cloud Endpoints (Google App Engine) with OAuth.
 This module use [Google APIs Client Library for JavaScript](https://developers.google.com/api-client-library/javascript/), available for all GApis.
@@ -62,7 +65,7 @@ add run in root module
 
 ```javascript
 app.run(['GAuth', 'GApi', 'GData', '$state', '$rootScope',
-    function(GAuth, GApi, Gdata, $state, $rootScope) {
+    function(GAuth, GApi, GData, $state, $rootScope) {
 
         $rootScope.gdata = GData;
 
@@ -75,6 +78,13 @@ app.run(['GAuth', 'GApi', 'GData', '$state', '$rootScope',
         GAuth.setClient(CLIENT);
         GAuth.setScope("https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar.readonly"); // default scope is only https://www.googleapis.com/auth/userinfo.email
 
+	// load the auth api so that it doesn't have to be loaded asynchronously
+	// when the user clicks the 'login' button. 
+	// That would lead to popup blockers blocking the auth window
+	GAuth.load();
+	
+	// or just call checkAuth, which in turn does load the oauth api.
+	// if you do that, GAuth.load(); is unnecessary
         GAuth.checkAuth().then(
             function (user) {
                 console.log(user.name + 'is login')
@@ -86,20 +96,18 @@ app.run(['GAuth', 'GApi', 'GData', '$state', '$rootScope',
 					  // authenticate user at startup of the application
             }
         );
-
     }
 ]);
 ```
 
 ### GApi.load Error handling
- +
- +```javascript
- +GApi.load('myApiName','v1',BASE)
- +    .catch(function(api, version) {
- +        console.log('an error occured during loading api: ' + api + ', version: ' + version);
- +    });
- +```
- +
+
+ ```javascript
+GApi.load('myApiName','v1',BASE)
+    .catch(function(api, version) {
+        console.log('an error occured during loading api: ' + api + ', version: ' + version);
+    });
+```
 
 ## Use
 
@@ -161,6 +169,7 @@ app.controller('myController', ['$scope', 'GApi',
 
 ### Signup with google
 
+The login should be triggered by a user action, or you might run into issues with popup blockers. More information about this can be found in the [Google APIs Client Library Documentation](https://developers.google.com/api-client-library/javascript/features/authentication#specifying-your-client-id-and-scopes).
 ```javascript
 app.controller('myController', ['$scope', 'GAuth', '$state',
     function myController($scope, GAuth, $state) {
